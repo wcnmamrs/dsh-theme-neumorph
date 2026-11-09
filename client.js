@@ -22,6 +22,23 @@ window.__ModuleLoader__.load({
   factory(require) {
     const SOURCE = 'dsh-theme-neumorph';
 
+    /**
+     * The palette is a handful of families, not 72 unrelated values. Naming
+     * them once keeps the table honest: every surface below is literally the
+     * same colour, so nothing can drift back to a slightly-off grey.
+     */
+    /** The page itself: every surface, card and chip sits on this one colour. */
+    const SURFACE = { light: '#e0e5ec', dark: '#262b31' };
+    /** Chips that must vanish into the surface instead of drawing a plate. */
+    const FLAT = { light: 'transparent', dark: 'transparent' };
+    /** Scrollbar thumb, resting and hovered. */
+    const SCROLL = { light: '#c9d2dd', dark: '#3a424a' };
+    const SCROLL_HOVER = { light: '#b9c4d1', dark: '#4a535d' };
+    /** Hover wash for rows and triggers: a shade, never a second colour. */
+    const HOVER = { light: '#d8dfe8', dark: '#2c333b' };
+    /** Floating surfaces that must stay legible above everything else. */
+    const FLOAT = { light: '#333d49', dark: '#3a444f' };
+
     /** Cool-grey soft-UI palette: one surface family, steel-blue accent. */
     const TOKENS = {
       // ---- surfaces: ONE colour, shadows do all the separating --------------
@@ -30,64 +47,64 @@ window.__ModuleLoader__.load({
       // slightly darker chip (icon plates, label plates, code bars, group
       // headers) therefore disappears into the surface instead of showing as a
       // rectangle behind the text.
-      '--dsw-alias-bg-base': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-bg-layer-1': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-bg-layer-2': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-bg-layer-3': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-bg-overlay': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-bg-module-platform': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-bg-document-preview': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-bg-multi-select': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-specific-sidebar-fill': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-specific-input-major': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-specific-selector': { light: 'transparent', dark: 'transparent' },
-      '--dsw-specific-tip': { light: 'transparent', dark: 'transparent' },
-      '--dsw-specific-login-input': { light: '#e0e5ec', dark: '#262b31' },
+      '--dsw-alias-bg-base': SURFACE,
+      '--dsw-alias-bg-layer-1': SURFACE,
+      '--dsw-alias-bg-layer-2': SURFACE,
+      '--dsw-alias-bg-layer-3': SURFACE,
+      '--dsw-alias-bg-overlay': SURFACE,
+      '--dsw-alias-bg-module-platform': SURFACE,
+      '--dsw-alias-bg-document-preview': SURFACE,
+      '--dsw-alias-bg-multi-select': SURFACE,
+      '--dsw-specific-sidebar-fill': SURFACE,
+      '--dsw-specific-input-major': SURFACE,
+      '--dsw-specific-selector': FLAT,
+      '--dsw-specific-tip': FLAT,
+      '--dsw-specific-login-input': SURFACE,
       '--dsw-menu-surface-fill': { light: '#e0e5ecf5', dark: '#262b31f5' },
-      '--dsw-alias-menu-group-header-fill': { light: 'transparent', dark: 'transparent' },
-      '--dsw-specific-bubble': { light: 'transparent', dark: 'transparent' },
-      '--dsw-specific-bubble-highlight': { light: 'transparent', dark: 'transparent' },
-      '--dsw-specific-sidebar-nav-item-active': { light: 'transparent', dark: 'transparent' },
-      '--dsw-specific-sidebar-nav-item-active-accent': { light: 'transparent', dark: 'transparent' },
+      '--dsw-alias-menu-group-header-fill': FLAT,
+      '--dsw-specific-bubble': FLAT,
+      '--dsw-specific-bubble-highlight': FLAT,
+      '--dsw-specific-sidebar-nav-item-active': FLAT,
+      '--dsw-specific-sidebar-nav-item-active-accent': FLAT,
 
       // ---- button fills: the same colour, relief comes from the shadow -----
-      '--dsw-alias-button-elevated-fill': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-button-floating-fill': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-button-floating-hover': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-button-ghost-active-fill': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-button-ghost-active-hover': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-button-primary-dimmed': { light: 'transparent', dark: 'transparent' },
+      '--dsw-alias-button-elevated-fill': FLAT,
+      '--dsw-alias-button-floating-fill': FLAT,
+      '--dsw-alias-button-floating-hover': FLAT,
+      '--dsw-alias-button-ghost-active-fill': FLAT,
+      '--dsw-alias-button-ghost-active-hover': FLAT,
+      '--dsw-alias-button-primary-dimmed': FLAT,
       '--dsw-alias-button-contrast-fill': { light: '#3a4450', dark: '#c9d3de' },
-      '--dsw-alias-interactive-bg-hover-solid': { light: 'transparent', dark: 'transparent' },
+      '--dsw-alias-interactive-bg-hover-solid': FLAT,
 
       // ---- code and inline panels: recessed, not tinted --------------------
-      '--dsw-alias-markdown-code-block': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-markdown-code-block-banner': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-markdown-inline-code': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-markdown-code-segment-selected': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-markdown-code-segment-unselected': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-markdown-citation': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-markdown-tag': { light: 'transparent', dark: 'transparent' },
-      '--dsw-alias-markdown-placeholder': { light: 'transparent', dark: 'transparent' },
+      '--dsw-alias-markdown-code-block': FLAT,
+      '--dsw-alias-markdown-code-block-banner': FLAT,
+      '--dsw-alias-markdown-inline-code': FLAT,
+      '--dsw-alias-markdown-code-segment-selected': FLAT,
+      '--dsw-alias-markdown-code-segment-unselected': FLAT,
+      '--dsw-alias-markdown-citation': FLAT,
+      '--dsw-alias-markdown-tag': FLAT,
+      '--dsw-alias-markdown-placeholder': FLAT,
 
       // ---- floating chrome: the only things allowed to differ --------------
-      '--dsw-alias-toast-bg': { light: '#333d49', dark: '#3a444f' },
-      '--dsw-alias-tooltip-bg': { light: '#333d49', dark: '#3a444f' },
+      '--dsw-alias-toast-bg': FLOAT,
+      '--dsw-alias-tooltip-bg': FLOAT,
       '--dsw-alias-switch-thumb': { light: '#f2f5f9', dark: '#cfd6df' },
-      '--dsw-alias-scrollbar-bg-l1': { light: '#c9d2dd', dark: '#3a424a' },
-      '--dsw-alias-scrollbar-bg-l2': { light: '#c9d2dd', dark: '#3a424a' },
-      '--dsw-alias-scrollbar-hover-l1': { light: '#b9c4d1', dark: '#4a535d' },
-      '--dsw-alias-scrollbar-hover-l2': { light: '#b9c4d1', dark: '#4a535d' },
+      '--dsw-alias-scrollbar-bg-l1': SCROLL,
+      '--dsw-alias-scrollbar-bg-l2': SCROLL,
+      '--dsw-alias-scrollbar-hover-l1': SCROLL_HOVER,
+      '--dsw-alias-scrollbar-hover-l2': SCROLL_HOVER,
 
       // ---- hairlines: effectively gone, shadows replace them ---------------
-      '--dsw-alias-settings-card-fill': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-onboarding-card-fill': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-onboarding-secondary-fill': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-turn-trigger-bg': { light: '#e0e5ec', dark: '#262b31' },
-      '--dsw-alias-turn-trigger-bg-hover': { light: '#d8dfe8', dark: '#2c333b' },
-      '--dsw-alias-button-tool-bar-fill': { light: '#e0e5ec', dark: '#262b31' },
+      '--dsw-alias-settings-card-fill': SURFACE,
+      '--dsw-alias-onboarding-card-fill': SURFACE,
+      '--dsw-alias-onboarding-secondary-fill': SURFACE,
+      '--dsw-alias-turn-trigger-bg': SURFACE,
+      '--dsw-alias-turn-trigger-bg-hover': HOVER,
+      '--dsw-alias-button-tool-bar-fill': SURFACE,
       '--dsw-alias-tooltip-key-bg': { light: '#3a444f', dark: '#3a444f' },
-      '--dsw-alias-bg-skeleton': { light: '#d8dfe8', dark: '#2c333b' },
+      '--dsw-alias-bg-skeleton': HOVER,
       '--dsw-alias-border-l1': { light: '#0000000a', dark: '#ffffff0a' },
       '--dsw-alias-border-l2': { light: '#00000014', dark: '#ffffff14' },
       '--dsw-alias-border-l3': { light: '#00000018', dark: '#ffffff18' },
@@ -180,17 +197,17 @@ body :where(button, [role="button"])[class*="_"]:not([aria-checked]):not([role="
 }
 
 /* The send button is a filled pill and keeps one soft shadow of its own. */
-body button[class*="_primary"] {
+body :where(button, [role="button"])[class*="_primary"] {
   border-radius: 999px !important;
   border-color: transparent !important;
   box-shadow: 0 3px 8px rgba(74, 107, 138, 0.28) !important;
 }
 
-body button[class*="_primary"]:hover:not(:disabled) {
+body :where(button, [role="button"])[class*="_primary"]:hover:not(:disabled) {
   box-shadow: 0 4px 10px rgba(74, 107, 138, 0.34) !important;
 }
 
-body button[class*="_primary"]:active:not(:disabled) {
+body :where(button, [role="button"])[class*="_primary"]:active:not(:disabled) {
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.26) !important;
 }
 

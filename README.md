@@ -1,5 +1,7 @@
 # DSH 新拟态主题 (dsh-theme-neumorph)
 
+[![CI](https://github.com/wcnmamrs/dsh-theme-neumorph/actions/workflows/ci.yml/badge.svg)](https://github.com/wcnmamrs/dsh-theme-neumorph/actions/workflows/ci.yml)
+
 给 Harness 网页界面换上一层**新拟态**（neumorphism / soft UI）皮肤：冷灰表面、钢蓝强调色、柔和的单向与双向软阴影，浅色与深色模式同时生效。
 
 ## 它做了什么
@@ -29,13 +31,19 @@
 ## 目录结构
 
 ```
-neumorph-theme/
-├── package.json        # bundle 清单: dsh.bundle.patch + dsh.client
-├── cordis.patch.yml    # 把本插件 insert 进 profile 的 Loader 树
-├── index.js            # Host 半: 空实现,只作为 bundle 的一行存在
-├── client.js           # Client 半: token 覆盖 + 阴影样式表
-├── locale/{zh,en}.json # 插件列表里的标题与描述
-└── icon.svg            # 原创图标
+.
+├── package.json           # bundle 清单: dsh.bundle.patch + dsh.client
+├── cordis.patch.yml       # 把本插件 insert 进 profile 的 Loader 树
+├── index.js               # Host 半: 空实现,只作为 bundle 的一行存在
+├── client.js              # Client 半: token 覆盖 + 阴影样式表
+├── locale/{zh,en}.json    # 插件列表里的标题与描述
+├── icon.svg               # 原创图标
+├── test/                  # 不依赖浏览器的断言
+│   ├── harness.mjs        #   按 __ModuleLoader__ 契约加载 client.js
+│   └── theme.test.mjs     #   调色板 / 样式表结构 / 卸载路径
+├── scripts/
+│   └── verify-manifest.mjs # 清单与打包自检
+└── .github/workflows/ci.yml
 ```
 
 ## 实现要点
@@ -44,6 +52,23 @@ neumorph-theme/
 - 所有副作用都包在 `ctx.effect()` 里并返回清理函数，插件停用时撤销 token 覆盖层并移除样式表，界面立刻回到原生外观。
 - 若宿主某天拒绝含 `--dsw-radius-*` 的 token 表，会自动退回只含颜色的 58 项重试。
 - 样式规则用整类名锚定宿主 CSS Module，哈希前缀随版本变化也不会失效。
+
+## 开发
+
+不需要浏览器，也不需要安装依赖（`node --test` 自带）：
+
+```bash
+npm test                    # 7 项断言：调色板、样式表结构、卸载路径
+npm run check               # 语法检查
+node scripts/verify-manifest.mjs   # 清单/打包自检
+npm run verify              # 以上全部
+```
+
+测试用一个假的 `window.__ModuleLoader__` 与 `document` 载入 `client.js`，因此断言的正是宿主实际调用的那条路径。其中三条是这次踩过坑之后加的护栏：
+
+- 样式表里不允许出现裸标签选择器（`body span`、`body button`），
+- 不允许出现第三方插件命名（曾经把 `dshwv-*` 的图标清空），
+- 卡片只允许整类名锚定，不允许 `[class*="_card"]` 这种会命中 `_cardContent` 的子串锚定。
 
 ## 许可
 
