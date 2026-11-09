@@ -55,7 +55,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test \"test/*.test.mjs\"",
+    "test": "node --test test/*.test.mjs",
     "check": "node --check client.js && node --check index.js",
     "verify": "npm run check && npm test",
     "pack:check": "npm pack --dry-run"
