@@ -1,0 +1,54 @@
+{
+  "name": "dsh-theme-neumorph",
+  "version": "1.0.0",
+  "description": "DSH 新拟态主题插件：冷灰表面、钢蓝强调、柔和阴影。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "theme",
+    "neumorphism",
+    "soft-ui",
+    "skin"
+  ],
+  "type": "module",
+  "icon": "./icon.svg",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-theme"
+      ]
+    },
+    "manifestVersion": 1
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wcnmamrs/dsh-theme-neumorph.git"
+  },
+  "homepage": "https://github.com/wcnmamrs/dsh-theme-neumorph#readme",
+  "bugs": {
+    "url": "https://github.com/wcnmamrs/dsh-theme-neumorph/issues"
+  },
+  "author": "wcnmamrs"
+}
