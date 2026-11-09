@@ -1,6 +1,8 @@
 # DSH 新拟态主题 (dsh-theme-neumorph)
 
 [![CI](https://github.com/wcnmamrs/dsh-theme-neumorph/actions/workflows/ci.yml/badge.svg)](https://github.com/wcnmamrs/dsh-theme-neumorph/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/dsh-theme-neumorph.svg)](https://www.npmjs.com/package/dsh-theme-neumorph)
+[![license](https://img.shields.io/npm/l/dsh-theme-neumorph.svg)](LICENSE)
 
 给 Harness 网页界面换上一层**新拟态**（neumorphism / soft UI）皮肤：冷灰表面、钢蓝强调色、柔和的单向与双向软阴影，浅色与深色模式同时生效。
 
