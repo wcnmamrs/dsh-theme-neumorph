@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.0.5
+
+Reported from the UI: the "jump to latest" disc at the bottom of the transcript
+was drawn *under* the messages, so they scrolled straight through it.
+
+- **A button that floats over content needs an opaque fill.** The host paints
+  that disc with `--dsw-alias-button-floating-fill`, which the palette had set
+  to `transparent` (the reasoning was that every surface is one colour, so a
+  transparent control sits flush on it - true for a control lying *on* the
+  surface, false for one hovering *over* scrolling text). `floating-fill` and
+  `elevated-fill` are now the surface colour and `floating-hover` a shade; the
+  same mistake had left `--dsw-alias-interactive-bg-hover-solid` transparent,
+  which is the only hover feedback ten separate controls have.
+- **The jump-to-latest disc stays a circle.** The button rule rounds every host
+  button to 12px, which turned the two 34px and 18px discs into small rounded
+  squares. The shape rule now skips them through `host()` anchors rather than
+  restoring their radius afterwards - a later rule could not out-rank the
+  button selector, because each `:not()` in it adds specificity.
+- Selection and hover states are no longer invisible: the settings sidebar's
+  active row (`--dsw-specific-sidebar-nav-item-active`) and the ghost-button
+  hover keep a shade, like the ghost active fill already did in 1.0.4.
+- **The suite now names these as signals.** A token the host reads as a mark,
+  as a fill over content, or as the only sign of hover/selection may not be
+  transparent; the jump-to-latest disc is asserted round and opaque, and four
+  mutation runs (transparent floating fill, rounded disc, transparent elevated
+  fill, transparent hover solid) each turn the suite red. 19 assertions became
+  20.
+
 ## 1.0.4
 
 Fixes from a third read-only review, all of them cases where a rule was right

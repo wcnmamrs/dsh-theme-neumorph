@@ -64,18 +64,22 @@ window.__ModuleLoader__.load({
       '--dsw-alias-menu-group-header-fill': FLAT,
       '--dsw-specific-bubble': FLAT,
       '--dsw-specific-bubble-highlight': FLAT,
-      '--dsw-specific-sidebar-nav-item-active': FLAT,
+      '--dsw-specific-sidebar-nav-item-active': HOVER,
       '--dsw-specific-sidebar-nav-item-active-accent': FLAT,
 
-      // ---- button fills: the same colour, relief comes from the shadow -----
-      '--dsw-alias-button-elevated-fill': FLAT,
-      '--dsw-alias-button-floating-fill': FLAT,
-      '--dsw-alias-button-floating-hover': FLAT,
+      // ---- button fills ----------------------------------------------------
+      // Ghost fills vanish (the relief carries them), but a button that floats
+      // over content must be opaque: the "jump to latest" disc is painted from
+      // floating-fill, and a transparent disc lets the transcript scroll through
+      // it. Hover states keep a shade, or pressing feels like nothing happened.
+      '--dsw-alias-button-elevated-fill': SURFACE,
+      '--dsw-alias-button-floating-fill': SURFACE,
+      '--dsw-alias-button-floating-hover': HOVER,
       '--dsw-alias-button-ghost-active-fill': HOVER,
-      '--dsw-alias-button-ghost-active-hover': FLAT,
+      '--dsw-alias-button-ghost-active-hover': HOVER,
       '--dsw-alias-fill-tsp-secondary': SURFACE,
       '--dsw-alias-button-contrast-fill': { light: '#3a4450', dark: '#c9d3de' },
-      '--dsw-alias-interactive-bg-hover-solid': FLAT,
+      '--dsw-alias-interactive-bg-hover-solid': HOVER,
 
       // ---- code and inline panels: recessed, not tinted --------------------
       '--dsw-alias-markdown-code-block': FLAT,
@@ -239,9 +243,17 @@ body :is(${host(
    shadow under a row that spans the panel reads as a stray line, and a
    stack of them reads as alternating high and low. */
 ${BUTTON_SELECTOR} {
-  border-radius: 12px !important;
   border-color: transparent !important;
   box-shadow: var(--qn-out-sm) !important;
+}
+
+/* The shape is a rounded rectangle, except where the host draws a ring: the
+   jump-to-latest disc is a 34px circle and the attachment remove disc an 18px
+   one, and a 12px corner turns either into a small rounded square. Their own
+   radius is left alone instead of being restored afterwards, because a later
+   rule here could not out-rank this one. */
+${BUTTON_SELECTOR}:not(:is(${host('toBottom')})):not(:is(${host('remove')})) {
+  border-radius: 12px !important;
 }
 
 ${BUTTON_SELECTOR}:hover:not(:disabled) {

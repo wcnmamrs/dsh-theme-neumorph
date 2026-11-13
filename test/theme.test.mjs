@@ -387,15 +387,24 @@ test('never makes a token the host reads as a signal disappear', async () => {
   const { tokens } = await loadTheme();
   const table = /** @type {Record<string, {light: string, dark: string}>} */ (tokens);
 
-  // Not every token is a plate. These three are read as a mark rather than as a
-  // background: a citation is a border colour on the thinking quote, the ghost
-  // active fill is the only sign that a ghost button is selected, and the inline
-  // code chip is the only sign that a word is code. Transparent is right for a
-  // plate and wrong for all three.
+  // Not every token is a plate that may vanish into the surface. Some are read
+  // as a mark rather than as a background - a citation is a border colour on the
+  // thinking quote, a ghost active fill is the only sign that a ghost button is
+  // selected, the inline code chip is the only sign that a word is code - and
+  // some sit *over* content, where transparent means the transcript scrolls
+  // through them (the jump-to-latest disc is painted from floating-fill), or
+  // they are the only feedback a hover state has. Transparent is right for a
+  // plate lying flat on the surface and wrong for every one of these.
   for (const name of [
     '--dsw-alias-markdown-citation',
     '--dsw-alias-button-ghost-active-fill',
+    '--dsw-alias-button-ghost-active-hover',
     '--dsw-alias-markdown-inline-code',
+    '--dsw-alias-button-floating-fill',
+    '--dsw-alias-button-floating-hover',
+    '--dsw-alias-button-elevated-fill',
+    '--dsw-alias-interactive-bg-hover-solid',
+    '--dsw-specific-sidebar-nav-item-active',
   ]) {
     assert.ok(table[name], `${name} is not themed at all`);
     for (const scheme of /** @type {const} */ (['light', 'dark'])) {
@@ -409,6 +418,47 @@ test('never makes a token the host reads as a signal disappear', async () => {
   assert.ok(disc, 'the contrast disc lost its fill');
   assert.equal(disc.light, '#3a4450', 'the light contrast disc drifted');
   assert.equal(disc.dark, '#c9d3de', 'the dark contrast disc drifted');
+});
+
+test('keeps the jump-to-latest disc a circle over the transcript', async () => {
+  const { css, tokens } = await loadTheme();
+  const rules = parseRules(css);
+  const table = /** @type {Record<string, {light: string, dark: string}>} */ (tokens);
+
+  // Ordinary buttons are rounded rectangles, which would turn a 34px circle into
+  // a small rounded square. The shape rule therefore has to skip the two rings
+  // the host draws, and nothing else may assign them a radius.
+  const shape = rules.filter(
+    (rule) => /:where\(button/.test(rule.header) && rule.body.includes('border-radius: 12px'),
+  );
+  assert.equal(shape.length, 1, 'the button shape rule is gone or duplicated');
+  for (const circle of ['_toBottom', '_remove']) {
+    assert.ok(
+      shape[0].header.includes(`[class$="${circle}"]`),
+      `the shape rule rounds ${circle} into a square`,
+    );
+    // The circle may be *named* in the shape rule, but only inside a `:not()`:
+    // an anchor outside one would apply a radius to it.
+    for (const rule of rules) {
+      if (!/border-radius:\s*[1-9]/.test(rule.body)) continue;
+      const anchor = `[class$="${circle}"]`;
+      for (let at = rule.header.indexOf(anchor); at !== -1; at = rule.header.indexOf(anchor, at + 1)) {
+        assert.ok(
+          enclosingFunctions(rule.header, at).some((name) => name.includes('not')),
+          `${circle} is given a radius by the theme`,
+        );
+      }
+    }
+  }
+
+  // And it must be opaque: a transparent disc lets the messages show through it.
+  for (const scheme of /** @type {const} */ (['light', 'dark'])) {
+    assert.notEqual(
+      table['--dsw-alias-button-floating-fill'][scheme],
+      'transparent',
+      `the disc fill is see-through (${scheme})`,
+    );
+  }
 });
 
 test('tearing the plugin down removes the stylesheet and the token layer', async () => {

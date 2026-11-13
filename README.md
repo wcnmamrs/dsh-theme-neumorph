@@ -38,6 +38,8 @@
 - 凡是要**加**规则的地方，锚定的都是**完整的 local 名**，而且一定用下划线夹住（`[class*="_card_"]` 而不是 `[class*="_card"]`），否则会串到 `_cardContent_x_y`、`_labelChip` 这种更长的零件上，卡片的每一块又各得一层投影。只有**排除**项才允许宽泛的片段（`button:not([class*="_row"])` 这类），因为排除范围宽一点只会少上一条浮雕，不会多毁一块界面。
 - 每个类名锚定都带 `:not([class*="__"])`：宿主是**单**下划线，别人家的 BEM 是**双**下划线，这一条挡住的正是 `panel__card`。
 - 裸标签只出现在三处：宿主的表单与代码面（`textarea`、`input`、`select`、`pre`）、可编辑文本（`[contenteditable="true"]`），以及必须同时带宿主类名的控件（`button` / `[role="button"]` / `a` + `[class*="_"]`）。`span` 不被当成文字。
+- 悬在内容**之上**的控件必须不透明。主题里表面只有一个颜色，所以"透明"对躺在表面上的控件是对的，对浮在滚动正文之上的那颗"回到最新"圆钮就是错的——它的底来自 `--dsw-alias-button-floating-fill`，透明时消息会从圆钮里穿过去。`floating-fill` / `elevated-fill` 现在是表面色，`floating-hover` 与 `--dsw-alias-interactive-bg-hover-solid` 是一层浅色（后者是十处控件唯一的悬停反馈）。
+- 圆形的钮不给 12px 圆角：按钮形状规则用 `host()` 锚定把"回到最新"（34px）与附件删除（18px）两颗圆盘排除在外，而不是事后改回来——按钮选择器里每个 `:not()` 都加权重，后面再写一条压不过它。
 - 不强制按钮底色。主题里所有表面是同一个颜色，透明按钮本来就与表面齐平；而宿主有些控件是**功能填充**（附件删除键的圆盘用 `--dsw-alias-button-contrast-fill`、叉号用 `--dsw-alias-label-primary-inverted`），一旦被灌成表面色，叉号就在近白底上消失了。所以按钮只加圆角与浮雕，填充留给宿主。
 - 文本会被拍平，但表单控件不会：宿主的重命名输入框类名就叫 `ymsBma_name`，它在文字规则里必须被 `:not(input):not(textarea):not(select)` 放行，否则那块输入框看起来就是一行纯文本。
 - 不是每个 token 都是"板子"。引用竖线（`--dsw-alias-markdown-citation`）、幽灵按钮的选中态（`--dsw-alias-button-ghost-active-fill`）、行内代码（`--dsw-alias-markdown-inline-code`）是宿主的**信号**，置成 `transparent` 等于把它们删掉，所以它们保留一层浅色，而不是跟其他表面一起消失。
