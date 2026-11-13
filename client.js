@@ -71,19 +71,19 @@ window.__ModuleLoader__.load({
       '--dsw-alias-button-elevated-fill': FLAT,
       '--dsw-alias-button-floating-fill': FLAT,
       '--dsw-alias-button-floating-hover': FLAT,
-      '--dsw-alias-button-ghost-active-fill': FLAT,
+      '--dsw-alias-button-ghost-active-fill': HOVER,
       '--dsw-alias-button-ghost-active-hover': FLAT,
-      '--dsw-alias-button-primary-dimmed': FLAT,
+      '--dsw-alias-fill-tsp-secondary': SURFACE,
       '--dsw-alias-button-contrast-fill': { light: '#3a4450', dark: '#c9d3de' },
       '--dsw-alias-interactive-bg-hover-solid': FLAT,
 
       // ---- code and inline panels: recessed, not tinted --------------------
       '--dsw-alias-markdown-code-block': FLAT,
       '--dsw-alias-markdown-code-block-banner': FLAT,
-      '--dsw-alias-markdown-inline-code': FLAT,
+      '--dsw-alias-markdown-inline-code': HOVER,
       '--dsw-alias-markdown-code-segment-selected': FLAT,
       '--dsw-alias-markdown-code-segment-unselected': FLAT,
-      '--dsw-alias-markdown-citation': FLAT,
+      '--dsw-alias-markdown-citation': SCROLL_HOVER,
       '--dsw-alias-markdown-tag': FLAT,
       '--dsw-alias-markdown-placeholder': FLAT,
 
@@ -153,10 +153,6 @@ window.__ModuleLoader__.load({
      */
     const guard = (anchor) => `${anchor}:not([class*="__"])`;
 
-    /** Anchors on a free-form class fragment (`_title`, `_label`). */
-    const sub = (...fragments) =>
-      fragments.map((fragment) => guard(`[class*="${fragment}"]`)).join(',\n  ');
-
     /** Anchors on a complete local name, in both host conventions. */
     const host = (...locals) =>
       locals
@@ -198,10 +194,22 @@ body[data-ds-dark-theme] {
 /* ---- text is flat ------------------------------------------------------
    Text never carries a plate of its own: a label sits on the surface, it does
    not sit in a slightly different rectangle. Only host markup is touched, and
-   only by the name the host gives it (see the host/sub helpers above), so a plugin's
-   own elements are never repainted. Nothing here targets a bare tag: a span is
-   not text until the host says so. */
-body :is(${sub('_label', '_title', '_value', '_text', '_name', '_desc', '_caption', '_hint', '_meta', '_timestamp')}, ${host(
+   only by a complete local name (see the host helper above), so neither a
+   plugin's own elements nor a longer host part ('_labelChip') is repainted.
+   Form controls are excluded even when their local reads like text, because a
+   rename field named '_name' is still a field with a plate of its own. Nothing
+   here targets a bare tag: a span is not text until the host says so. */
+body :is(${host(
+  'label',
+  'title',
+  'value',
+  'text',
+  'name',
+  'desc',
+  'caption',
+  'hint',
+  'meta',
+  'timestamp',
   'itemLabel',
   'runStateLabel',
   'dockHintLabel',
@@ -215,21 +223,24 @@ body :is(${sub('_label', '_title', '_value', '_text', '_name', '_desc', '_captio
   'otherValue',
   'keywordValue',
   'popoverText',
-)}) {
+)}):not(input):not(textarea):not(select):not([contenteditable="true"]) {
   background-color: transparent !important;
   box-shadow: none !important;
 }
 
 /* ---- controls: soft, raised --------------------------------------------
-   Buttons are objects again: a filled shape with the same paired light and
-   shade as the surface around it. Full-width rows and every control that
+   Buttons are objects again: a shape with the same paired light and shade as
+   the surface around it. The fill is deliberately not forced: every surface in
+   this theme is one colour, so a transparent button already sits flush on it,
+   while a host control that paints a functional disc (the attachment remove
+   button uses '--dsw-alias-button-contrast-fill') must keep it or its glyph
+   becomes invisible. Full-width rows and every control that
    lives inside a menu, a tab strip or a picker are excluded, because a
    shadow under a row that spans the panel reads as a stray line, and a
    stack of them reads as alternating high and low. */
 ${BUTTON_SELECTOR} {
   border-radius: 12px !important;
   border-color: transparent !important;
-  background-color: var(--dsw-alias-bg-base) !important;
   box-shadow: var(--qn-out-sm) !important;
 }
 
@@ -338,9 +349,15 @@ body :where(
   outline-offset: -2px !important;
 }
 
+/* Buttons and links keep a ring outside the shape, where it cannot be confused
+   with the relief, but it is declared important so that every control in the
+   product shows the same theme accent: the host draws its own ring inside
+   component-scoped rules (a business-blue ring with a positive offset), and
+   without the flag half the interface would stay blue while the fields are
+   steel. */
 body :where(button, [role="button"], a):focus-visible {
-  outline: 2px solid var(--dsw-alias-brand-primary);
-  outline-offset: 2px;
+  outline: 2px solid var(--dsw-alias-brand-primary) !important;
+  outline-offset: 2px !important;
 }
 `;
 

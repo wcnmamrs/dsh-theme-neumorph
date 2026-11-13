@@ -15,7 +15,9 @@
  *    de-duplicate its own sheet, and throws on anything else instead of
  *    silently returning nothing;
  *  - `overrideTokens` can be told to reject, so the colour-only retry and the
- *    "rejected twice" path are both reachable from a test.
+ *    "rejected twice" path are both reachable from a test;
+ *  - nodes track `parentNode` the way the DOM does, and the roots can refuse an
+ *    insert, so "the append threw, take the sheet back out" is reachable too.
  */
 
 /** @typedef {{ light: string, dark: string }} TokenPair */
@@ -27,6 +29,7 @@
  * @property {string} textContent
  * @property {boolean} removed
  * @property {boolean} connected
+ * @property {FakeNode | null} parentNode
  * @property {() => void} remove
  */
 
@@ -40,6 +43,9 @@
  *   its callback, so nothing the plugin inserted should exist afterwards.
  * @property {boolean} [withoutHead] Leave `document.head` undefined, the way a
  *   document outside the normal load path can be, to exercise the fallback.
+ * @property {boolean} [appendThrows] Make both roots throw on `appendChild`, the
+ *   way a sandboxed or detached document does, so the insert can fail while the
+ *   effect has already begun.
  */
 
 let loadCount = 0;
@@ -79,13 +85,18 @@ export async function loadTheme(options = {}) {
   let effectDepth = 0;
 
   /** Both roots record the same way: a fallback insert must be as visible as a
-   *  normal one, otherwise the fallback path is untestable. */
-  const record = (/** @type {FakeNode} */ node) => {
+   *  normal one, otherwise the fallback path is untestable. `this` is the root
+   *  the node was appended to, because a node that never got a parent is how the
+   *  plugin tells "the insert failed" from "the host refused the token table". */
+  function record(/** @type {FakeNode} */ node) {
+    if (options.appendThrows) throw new Error('the host refused the insert');
     appended.push(node);
     appendedInEffect.push(effectDepth);
     node.connected = true;
+    // @ts-expect-error - the two roots are structurally fake nodes.
+    node.parentNode = this ?? null;
     return node;
-  };
+  }
 
   /** @type {FakeNode} */
   const documentElement = {
@@ -94,6 +105,7 @@ export async function loadTheme(options = {}) {
     textContent: '',
     removed: false,
     connected: true,
+    parentNode: null,
     remove() {},
     appendChild: record,
   };
@@ -104,6 +116,7 @@ export async function loadTheme(options = {}) {
     textContent: '',
     removed: false,
     connected: true,
+    parentNode: null,
     remove() {},
     appendChild: record,
   };
@@ -117,9 +130,11 @@ export async function loadTheme(options = {}) {
       textContent: '',
       removed: false,
       connected: false,
+      parentNode: null,
       remove() {
         node.removed = true;
         node.connected = false;
+        node.parentNode = null;
       },
     };
     created.push(node);

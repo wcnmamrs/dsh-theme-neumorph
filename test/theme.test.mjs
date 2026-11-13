@@ -35,20 +35,12 @@ const BARE_TAG_ALLOWLIST = new Set(['body', 'button', 'textarea', 'input', 'sele
  * Anything not listed here must be underscore-delimited.
  */
 const FREE_FRAGMENTS = new Set([
+  // The only bare fragment: "this element was given a class by the host at all".
   '_',
-  '_label',
-  '_title',
-  '_value',
-  '_text',
-  '_name',
-  '_desc',
-  '_caption',
-  '_hint',
-  '_meta',
-  '_timestamp',
-  '_primary',
-  // Exclusions inside the button selector: over-broad here is the safe
-  // direction, because each one only subtracts a rule.
+  // Exclusions inside the button selector, and only there. Over-broad is the
+  // safe direction for these, because each one subtracts a rule instead of
+  // adding one; an include anchor is never allowed to straddle a longer local
+  // (a text rule anchored on '_label' would also flatten '_labelChip').
   '_row',
   '_tab',
   '_option',
@@ -312,6 +304,109 @@ test('leaves relief on surfaces only, and only on host anchors', async () => {
   // The menu panel already clips its own material layer; a second `overflow`
   // rule here only risks cutting off a long menu's scroll.
   assert.doesNotMatch(css, /\[data-menu-material\]\s*\{[^}]*overflow/, 'the menu material is clipped again');
+});
+
+test('never forces a fill onto a host control', async () => {
+  const { css } = await loadTheme();
+  const rules = parseRules(css);
+
+  // Every surface in this theme is one colour, so a transparent button already
+  // sits flush on it. Forcing the fill is what made the attachment remove button
+  // invisible: the host paints that disc from `--dsw-alias-button-contrast-fill`
+  // and its glyph from `--dsw-alias-label-primary-inverted`, so a forced surface
+  // fill leaves a white cross on near-white.
+  const buttonRules = rules.filter((rule) =>
+    /:where\(button, \[role="button"\]\)/.test(rule.header),
+  );
+  assert.ok(buttonRules.length >= 3, 'the button rules disappeared');
+  for (const rule of buttonRules) {
+    assert.doesNotMatch(
+      rule.body,
+      /background(-color)?:\s*[^;]*!important/,
+      `a button rule forces a background: ${rule.header.slice(0, 60)}`,
+    );
+  }
+
+  // The relief has to survive instead: a shape without shade is a rounded box.
+  assert.ok(
+    buttonRules.some((rule) => /box-shadow:\s*var\(--qn-out/.test(rule.body)),
+    'buttons lost their relief along with the fill',
+  );
+});
+
+test('keeps the field recess, the hover lift and the pill radius', async () => {
+  const { css } = await loadTheme();
+  const rules = parseRules(css);
+
+  // A field is pressed in, not just outlined: the recess is the whole point.
+  const [field] = rules.filter(
+    (rule) => rule.header.includes('textarea') && rule.header.includes('input:not([type="checkbox"])'),
+  );
+  assert.ok(field, 'the field rule is gone');
+  assert.match(field.body, /box-shadow:\s*var\(--qn-in\)/, 'the fields lost their recess');
+
+  // A rename field whose local reads like text ('_name') is still a field: the
+  // flatten rule has to leave form controls alone or it strips their plate.
+  const [flat] = rules.filter((rule) => rule.header.includes('background-color: transparent') || rule.body.includes('background-color: transparent'));
+  assert.ok(flat, 'the text flatten rule is gone');
+  assert.match(flat.header, /\)\):not\(input\):not\(textarea\)/, 'the text rule repaints form controls');
+
+  // Hover is what makes the relief read as a material rather than a picture.
+  const lifts = rules.filter(
+    (rule) => rule.header.includes(':hover') && rule.body.includes('var(--qn-'),
+  );
+  assert.ok(lifts.length >= 2, 'no hover state changes the relief any more');
+
+  // A soft button is round and a soft pill is a pill; both are radii, not colour.
+  assert.ok(
+    rules.some((rule) => /_primary/.test(rule.header) && rule.body.includes('border-radius: 999px')),
+    'the send pill lost its radius',
+  );
+  assert.ok(
+    rules.some((rule) => /:where\(button/.test(rule.header) && rule.body.includes('border-radius: 12px')),
+    'ordinary buttons lost their radius',
+  );
+});
+
+test('an insert the host refuses is taken back out before the error is rethrown', async () => {
+  // The document refuses the append, so the sheet never gets a parent: the
+  // plugin must not leave a half-registered layer behind, and must not swallow
+  // the failure either.
+  const theme = await loadTheme({ appendThrows: true });
+
+  assert.equal(theme.applyErrors.length, 1, 'the insert failure was swallowed');
+  assert.equal(theme.tokens, null, 'a token layer was registered without any shadows');
+  const sheets = theme.styles;
+  assert.equal(sheets.length, 1, 'the plugin built no stylesheet node');
+  assert.equal(sheets[0].removed, true, 'the refused stylesheet was left behind');
+});
+
+test('never makes a token the host reads as a signal disappear', async () => {
+  const { tokens } = await loadTheme();
+  const table = /** @type {Record<string, {light: string, dark: string}>} */ (tokens);
+
+  // Not every token is a plate. These three are read as a mark rather than as a
+  // background: a citation is a border colour on the thinking quote, the ghost
+  // active fill is the only sign that a ghost button is selected, and the inline
+  // code chip is the only sign that a word is code. Transparent is right for a
+  // plate and wrong for all three.
+  for (const name of [
+    '--dsw-alias-markdown-citation',
+    '--dsw-alias-button-ghost-active-fill',
+    '--dsw-alias-markdown-inline-code',
+  ]) {
+    assert.ok(table[name], `${name} is not themed at all`);
+    for (const scheme of /** @type {const} */ (['light', 'dark'])) {
+      assert.notEqual(table[name][scheme], 'transparent', `${name} is a signal and went transparent (${scheme})`);
+    }
+  }
+
+  // ...while the contrast disc keeps a fill dark enough for the inverted glyph
+  // the host draws on it.
+  const disc = table['--dsw-alias-button-contrast-fill'];
+  assert.ok(disc, 'the contrast disc lost its fill');
+  assert.equal(disc.light, '#3a4450', 'the light contrast disc drifted');
+  assert.equal(disc.dark, '#c9d3de', 'the dark contrast disc drifted');
 });
 
 test('tearing the plugin down removes the stylesheet and the token layer', async () => {

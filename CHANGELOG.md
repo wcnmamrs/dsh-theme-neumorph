@@ -1,5 +1,48 @@
 # Changelog
 
+## 1.0.4
+
+Fixes from a third read-only review, all of them cases where a rule was right
+about the shape of the host and wrong about one node inside it.
+
+- **The attachment remove button was invisible.** Every host button got
+  `background-color: var(--dsw-alias-bg-base)`, and that disc is painted from
+  `--dsw-alias-button-contrast-fill` with a glyph in
+  `--dsw-alias-label-primary-inverted`: forcing the surface colour left a white
+  cross on near-white (light) or a dark cross on near-black (dark), so the only
+  way to detach an uploaded file disappeared on hover. No button rule forces a
+  fill any more - every surface in this theme is one colour, so a transparent
+  button already sits flush on it - and a test fails if a fill comes back.
+- **The text flatten rule straddled longer locals.** Its anchors were free
+  fragments (`[class*="_label"]`), which also hit `_labelChip`-style parts: a
+  preset chip in the agent settings lost its plate and a rename field in the
+  terminal sidebar (`_name`) lost its input look. The fragments are gone, every
+  include anchor is now a complete local in both conventions, and form controls
+  are excluded outright.
+- **The invariant 1.0.3 claimed is now actually enforced.** The check that
+  "nothing straddles a longer local" skipped exactly the fragments that did, so
+  it could not have caught the bullet above. The allow-list now holds only the
+  subtractive fragments inside the button selector, where broad is the safe
+  direction.
+- **Three tokens the host reads as a signal no longer go transparent.**
+  `--dsw-alias-markdown-citation` is a quote's left border,
+  `--dsw-alias-button-ghost-active-fill` is the only mark of a selected ghost
+  button, and `--dsw-alias-markdown-inline-code` is the only mark of code in a
+  paragraph; all three now keep a shade. `--dsw-alias-button-primary-dimmed` was
+  replaced by `--dsw-alias-fill-tsp-secondary`: the host never reads the former,
+  the chips do read the latter. The token count stays at 72.
+- **The accent is the same colour everywhere.** The button and link focus ring
+  is declared `!important`, like the field ring already was, so a
+  component-scoped host ring cannot leave the DeepSeek blue in half the
+  interface while the fields are steel.
+- **Two more holes closed in the suite.** The fake nodes now track `parentNode`
+  and the roots can refuse an insert, so "the append threw, take the sheet back
+  out" is reachable; and the field recess, the hover states, the two radii and
+  the contrast disc are asserted, which the previous suite never looked at. 15
+  assertions became 19, and seven mutation runs (restored fill, flat field,
+  no `remove()` on throw, straddling label anchor, no form-control exclusion,
+  transparent signal, pill radius) each turn the suite red.
+
 ## 1.0.3
 
 Fixes from a second read-only review, which caught that 1.0.2 fixed the wrong
