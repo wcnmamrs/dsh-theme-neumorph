@@ -137,6 +137,39 @@ window.__ModuleLoader__.load({
       '--dsw-radius-panel': { light: '26px', dark: '26px' },
     };
 
+    /**
+     * The host ships two CSS-module naming conventions at once:
+     *
+     *   - the pre-built app stylesheet names its classes `_<local>_<hash>_<line>`
+     *     (`_card_7gxqk_107`);
+     *   - the component styles injected from JS name theirs `<hash>_<local>`
+     *     (`wSkVaW_card`).
+     *
+     * So an anchor for a local name has to cover both, and it must not straddle
+     * a longer local: `_card_` never matches `_cardContent_1a2b_9`, while a bare
+     * `[class*="_card"]` would. Every anchor also refuses a double underscore,
+     * because that is how a plugin names its own elements (`panel__card`) and no
+     * host class contains one.
+     */
+    const guard = (anchor) => `${anchor}:not([class*="__"])`;
+
+    /** Anchors on a free-form class fragment (`_title`, `_label`). */
+    const sub = (...fragments) =>
+      fragments.map((fragment) => guard(`[class*="${fragment}"]`)).join(',\n  ');
+
+    /** Anchors on a complete local name, in both host conventions. */
+    const host = (...locals) =>
+      locals
+        .flatMap((local) => [`[class$="_${local}"]`, `[class*="_${local}_"]`])
+        .map(guard)
+        .join(',\n  ');
+
+    /** A host button: anything the host painted with a class, minus the cases
+     *  below. Kept as one constant so the three states cannot drift apart. */
+    const BUTTON_SELECTOR = `body :where(button, [role="button"])[class*="_"]:not([class*="__"]):not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not(:is(${host(
+      'primary',
+    )})):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *)`;
+
     const CSS = `
 body {
   --qn-hi: #ffffff;
@@ -163,14 +196,26 @@ body[data-ds-dark-theme] {
 }
 
 /* ---- text is flat ------------------------------------------------------
-   Only elements the harness itself styles are touched, and only by name:
-   every host class is a CSS-module pair of the form <hash>_<local>, so a
-   class that contains an underscore is host markup. Plugin UI names its own
-   elements (dshwv-menu-btn and friends) and is left alone.
-   Nothing here targets a bare tag: a span is not text until it says so. */
-/* Same rule, for the pieces of text that are wrapped in a div rather than a
-   span: a label, a title, a value. They are content too. */
-body :is([class*="_label"], [class*="_title"], [class*="_value"], [class*="_text"], [class*="_name"], [class*="_desc"], [class*="_caption"], [class*="_hint"], [class*="_meta"], [class*="_timestamp"]):not([class*="__"]) {
+   Text never carries a plate of its own: a label sits on the surface, it does
+   not sit in a slightly different rectangle. Only host markup is touched, and
+   only by the name the host gives it (see the host/sub helpers above), so a plugin's
+   own elements are never repainted. Nothing here targets a bare tag: a span is
+   not text until the host says so. */
+body :is(${sub('_label', '_title', '_value', '_text', '_name', '_desc', '_caption', '_hint', '_meta', '_timestamp')}, ${host(
+  'itemLabel',
+  'runStateLabel',
+  'dockHintLabel',
+  'clickableLabel',
+  'labelGroup',
+  'tabTitle',
+  'floatTitle',
+  'failedTitle',
+  'stringValue',
+  'numberValue',
+  'otherValue',
+  'keywordValue',
+  'popoverText',
+)}) {
   background-color: transparent !important;
   box-shadow: none !important;
 }
@@ -181,33 +226,33 @@ body :is([class*="_label"], [class*="_title"], [class*="_value"], [class*="_text
    lives inside a menu, a tab strip or a picker are excluded, because a
    shadow under a row that spans the panel reads as a stray line, and a
    stack of them reads as alternating high and low. */
-body :where(button, [role="button"])[class*="_"]:not([class*="__"]):not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not([class*="_primary"]):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *) {
+${BUTTON_SELECTOR} {
   border-radius: 12px !important;
   border-color: transparent !important;
   background-color: var(--dsw-alias-bg-base) !important;
   box-shadow: var(--qn-out-sm) !important;
 }
 
-body :where(button, [role="button"])[class*="_"]:not([class*="__"]):not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not([class*="_primary"]):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *):hover:not(:disabled) {
+${BUTTON_SELECTOR}:hover:not(:disabled) {
   box-shadow: var(--qn-out) !important;
 }
 
-body :where(button, [role="button"])[class*="_"]:not([class*="__"]):not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not([class*="_primary"]):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *):active:not(:disabled) {
+${BUTTON_SELECTOR}:active:not(:disabled) {
   box-shadow: var(--qn-in-sm) !important;
 }
 
 /* The send button is a filled pill and keeps one soft shadow of its own. */
-body :where(button, [role="button"])[class*="_primary"]:not([class*="__"]) {
+body :where(button, [role="button"]):is(${host('primary')}) {
   border-radius: 999px !important;
   border-color: transparent !important;
   box-shadow: 0 3px 8px rgba(74, 107, 138, 0.28) !important;
 }
 
-body :where(button, [role="button"])[class*="_primary"]:not([class*="__"]):hover:not(:disabled) {
+body :where(button, [role="button"]):is(${host('primary')}):hover:not(:disabled) {
   box-shadow: 0 4px 10px rgba(74, 107, 138, 0.34) !important;
 }
 
-body :where(button, [role="button"])[class*="_primary"]:not([class*="__"]):active:not(:disabled) {
+body :where(button, [role="button"]):is(${host('primary')}):active:not(:disabled) {
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.26) !important;
 }
 
@@ -226,17 +271,14 @@ body :where(
    Deliberately narrow. Rows, tabs, chips, list items and every other small
    block stay flat: a shadow on each of them turns the page into a field of
    pillows, which is not what neumorphism is for. */
-body [class$="_card"],
-body [class*="_card "]:not([class*="__"]) {
+body :is(${host('card')}) {
   box-shadow: var(--qn-drop) !important;
   border-color: transparent !important;
 }
 
 /* ---- composer: the one big soft slab ------------------------------------ */
-body [class*="_composerSeat"]:not([class*="__"]) [class$="_card"],
-body [class*="_composerSeat"]:not([class*="__"]) [class*="_card "]:not([class*="__"]),
-body [class*="_composerHero"]:not([class*="__"]) [class$="_card"],
-body [class*="_composerHero"]:not([class*="__"]) [class*="_card "]:not([class*="__"]) {
+body :is(${host('composerSeat')}) :is(${host('card')}),
+body :is(${host('composerHero')}) :is(${host('card')}) {
   box-shadow: var(--qn-out) !important;
   border-radius: 22px !important;
   border-color: transparent !important;
@@ -245,7 +287,7 @@ body [class*="_composerHero"]:not([class*="__"]) [class*="_card "]:not([class*="
 /* ---- floating surfaces: menus, dialogs, tooltips ------------------------ */
 body :where([role="menu"], [role="dialog"], [role="listbox"], [role="tooltip"]),
 body [data-menu-material],
-body :is([class$="_menu"], [class*="_menu "], [class$="_dialog"], [class*="_dialog "]):not([class*="__"]) {
+body :is(${host('menu', 'dialog')}) {
   border-radius: 20px !important;
   box-shadow: var(--qn-out-lg) !important;
 }
@@ -257,14 +299,12 @@ body [data-menu-material] > [aria-hidden="true"] {
 }
 
 /* ---- session tree: one soft row per session ----------------------------- */
-body [class*="_sessionRow"]:not([class*="__"]),
-body [class*="_projectRow"]:not([class*="__"]) {
+body :is(${host('sessionRow', 'projectRow')}) {
   border-radius: 12px !important;
   box-shadow: var(--qn-drop) !important;
 }
 
-body [class*="_sessionRow"]:not([class*="__"]):hover,
-body [class*="_projectRow"]:not([class*="__"]):hover {
+body :is(${host('sessionRow', 'projectRow')}):hover {
   box-shadow: var(--qn-drop-lift) !important;
 }
 
@@ -276,31 +316,32 @@ body :where(pre) {
 }
 
 /* ---- sidebar: a faint groove instead of a divider line ------------------ */
-body [class*="_sidebarCol"]:not([class*="__"]) {
+body :is(${host('sidebarCol')}) {
   box-shadow: inset -8px 0 14px -14px var(--qn-lo) !important;
 }
 
-/* ---- focus: a pressed rim, drawn inside the field ----------------------
-   The host ring is an outer halo, which on a soft surface reads as a stray
-   blue edge beside the box (and it cannot be seen at all once the field has
-   the recessed shadow). So the outer ring is dropped and replaced by a rim
-   inside the field, in the same accent a selected control uses. It exists
-   only while the field has focus: without it a keyboard user has no way to
-   tell which box the caret is in. */
-body :where(textarea, input, select, [contenteditable="true"]):focus {
-  outline: none !important;
-}
-
-body :where(textarea, input, select, [contenteditable="true"]):focus-visible {
-  outline: none !important;
-  box-shadow: var(--qn-in), inset 0 0 0 1.5px var(--dsw-alias-brand-primary) !important;
+/* ---- focus: a ring, drawn inside the field -----------------------------
+   The host draws its ring outside the box, which on a soft surface reads as a
+   stray edge floating beside the field. So the ring is moved inward instead of
+   removed: an outline with a negative offset follows the border radius, composes
+   with the recessed shadow instead of replacing it, and still exists for every
+   control type - including the checkable ones this sheet never restyles, which
+   keep the host ring untouched. A theme that sets outline: none on a focus
+   state leaves a keyboard user with no idea where they are; this one does not. */
+body :where(
+  textarea,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  [contenteditable="true"]
+):focus-visible {
+  outline: 1.5px solid var(--dsw-alias-brand-primary) !important;
+  outline-offset: -2px !important;
 }
 
 body :where(button, [role="button"], a):focus-visible {
   outline: 2px solid var(--dsw-alias-brand-primary);
   outline-offset: 2px;
 }
-
 `;
 
     return {
@@ -323,29 +364,43 @@ body :where(button, [role="button"], a):focus-visible {
 
         // Everything the plugin adds is created and released inside one effect:
         // a stylesheet inserted before the effect registered would outlive a
-        // throw here, and a second apply would stack a second copy of it.
+        // throw, and a second apply would stack a second copy of it. So the old
+        // sheet of this source is dropped first, and a throw after insertion
+        // takes the sheet back out again.
         ctx.effect(() => {
+          const root = document.head ?? document.documentElement;
+          for (const stale of document.querySelectorAll?.(`style[data-dsh-theme="${SOURCE}"]`) ?? []) {
+            stale.remove();
+          }
+
           // Shadow layer: neumorphism needs paired soft shadows, and a theme
           // token can only carry a colour, so the shadows are a stylesheet of
           // their own.
           const style = document.createElement('style');
           style.dataset.dshTheme = SOURCE;
           style.textContent = CSS;
-          const root = document.head ?? document.documentElement;
-          root.appendChild(style);
 
           let disposeTokens = null;
           try {
+            root.appendChild(style);
             disposeTokens = overrideTokens();
           } catch (error) {
-            // A host that rejects the table outright still gets the shadows, and
-            // the sheet is still owned by this effect: report, do not throw.
+            // Whatever happened, this effect owns what it inserted: give it back
+            // before getting out of the way. The one exception is the token
+            // table, which has a colour-only retry of its own; if even that is
+            // rejected the shadows are still worth keeping, so report and carry on.
+            if (style.parentNode === null && disposeTokens === null) {
+              style.remove();
+              throw error;
+            }
             console.warn('[dsh-theme-neumorph] token layer rejected, shadows only', error);
           }
 
           return () => {
-            disposeTokens?.();
+            // Sheet first: one frame of host colours is better than one frame of
+            // plugin shadows over the host's own palette.
             style.remove();
+            disposeTokens?.();
           };
         });
       },

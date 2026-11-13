@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.0.3
+
+Fixes from a second read-only review, which caught that 1.0.2 fixed the wrong
+half of the selectors: the host uses **two** CSS-module naming conventions at
+once, and only one of them was anchored.
+
+- **Half the UI had no theme at all.** The pre-built app stylesheet names classes
+  `_<local>_<hash>_<line>` (`_card_7gxqk_107`), while styles injected from JS
+  name them `<hash>_<local>` (`wSkVaW_card`). Every rule used the second form
+  (`[class$="_card"]`), so every card, menu and dialog painted by the pre-built
+  stylesheet was silently skipped. Each anchor for a complete local is now
+  emitted twice, once per convention, from one helper (`host()`), and a test
+  fails if a local is anchored only once.
+- **Substring anchors are underscore-delimited.** `[class*="_card"]` also matched
+  `_cardContent_x_y`, which put a second shadow inside every card. Anchors now
+  look like `[class*="_card_"]`; the test rejects anything that straddles a
+  longer local, so the next one cannot creep back in.
+- **The focus ring no longer takes the host ring away from checkboxes.** The
+  1.0.2 rim was an `inset` box-shadow on an unfiltered `input`, which killed the
+  host's ring on `checkbox` / `radio` (their own ring is the only affordance they
+  have) and could not be seen inside a native control anyway. It is now an
+  `outline` with `outline-offset: -2px`, which composes with the recessed shadow
+  instead of replacing it, follows the border radius, and is limited to text
+  entry types; checkables keep the host ring untouched.
+- **A second `apply()` cannot stack a second stylesheet.** The sheet of the same
+  source is removed before the new one is inserted, and an insert that the host
+  then rejects is taken back out before the error is rethrown. Release order is
+  sheet first, tokens second.
+- **Tests can no longer pass while the plugin is broken.** The harness now
+  records how many `ctx.effect` calls were open at insert time (so "inserted
+  outside the effect" and "effect refused, sheet still leaked" both fail),
+  understands `document.querySelectorAll` for the de-duplication path, can refuse
+  `ctx.effect`, can run `apply()` twice, and can drop `document.head` to exercise
+  the fallback root. Five mutation runs (`one convention only`, `no BEM guard`,
+  `no de-duplication`, `outline: none`, `insert outside the effect`) each turn
+  the suite red. 11 assertions became 15.
+- Deliberate non-change, now asserted: `--dsw-alias-state-business-primary` stays
+  the host's blue. It also paints focus rings and info banners, where the host's
+  contrast has been tested; a second accent on screen is the cheaper cost, and
+  silently taking it over would shift the palette count quoted in the README and
+  in the market entry.
+
 ## 1.0.2
 
 Fixes from an external read-only review, all with a test behind them.
