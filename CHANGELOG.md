@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.0.2
+
+Fixes from an external read-only review, all with a test behind them.
+
+- **Text fields keep a focus indicator.** The theme used to set `outline: none`
+  on `:focus` *and* `:focus-visible` for `input` / `textarea` /
+  `[contenteditable]`, which also removed the host's own `:focus-visible` ring,
+  and the recessed shadow then hid any replacement. Keyboard users had no way to
+  see which field had the caret (WCAG 2.4.7). The ring is now drawn *inside* the
+  field as a 1.5px steel-blue rim, so it reads as a pressed-in edge rather than
+  an outer halo, and it is tested.
+- **The stylesheet cannot leak.** `<style>` was inserted before `ctx.effect()`
+  registered, so a host that rejected the token table twice left an orphaned
+  sheet in `<head>` and a second `apply()` stacked a second copy. Insertion,
+  token override and release now all happen inside the effect; a rejected table
+  degrades to "shadows only" instead of throwing out of `apply()`.
+- **Class-substring anchors carry a BEM guard.** `[class*="_"]` (buttons) and
+  `[class*="_title"]`-style anchors (text) also matched a third-party
+  `block__elem`. Every substring anchor now ends with `:not([class*="__"])`,
+  since host names use a single underscore and BEM uses a double one.
+- Dropped two dead selectors (`[class$="Card"]`, `[class*="Card "]` — host class
+  names are lower-case and `<hash>_`-prefixed) and a redundant
+  `overflow: hidden` on `[data-menu-material]` that could clip a long menu's own
+  scrolling.
+- README: the colour-only fallback is 66 tokens, not 58; screenshots use absolute
+  `raw.githubusercontent.com` URLs so they also render on npm, which does not
+  ship `assets/`.
+- Tests: 7 → 11 checks, and the harness no longer lets a broken plugin pass.
+  `createElement` returns a real node per call, `appendChild` records it, and
+  `overrideTokens` can be told to reject — so "never inserted", "leaked after
+  dispose" and "the retry never ran" are now failures instead of silent passes.
+
 ## 1.0.1
 
 - Tests: `test/` now loads `client.js` through the same `__ModuleLoader__`

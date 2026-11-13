@@ -12,7 +12,7 @@
 
 | 首页与输入区 | 侧栏与会话列表 |
 | --- | --- |
-| ![首页](assets/screenshot-1.jpg) | ![侧栏](assets/screenshot-2.jpg) |
+| ![首页](https://raw.githubusercontent.com/wcnmamrs/dsh-theme-neumorph/main/assets/screenshot-1.jpg) | ![侧栏](https://raw.githubusercontent.com/wcnmamrs/dsh-theme-neumorph/main/assets/screenshot-2.jpg) |
 
 ## 它做了什么
 
@@ -35,8 +35,9 @@
 主题只动宿主自己画的界面，不碰第三方插件：
 
 - 宿主的类名是 CSS Module 的 `<hash>_<local>` 形式，规则按整类名锚定（如 `[class$="_card"]`），不会误伤卡片内部的零件。
-- 插件的界面用自己的命名（`dshwv-*`、BEM 之类），不被命中。
-- 没有一条规则按裸标签生效：`span` 不被当成文字，`button` 不被当成按钮。
+- 每条子串锚定（`[class*="_title"]` 这类）都带 `:not([class*="__"])`：宿主是**单**下划线，别人家的 BEM 是**双**下划线，这一条挡住的正是 `block__title`。
+- 没有一条规则按裸标签生效：`span` 不被当成文字，`button` 不被当成按钮。允许的唯一例外是宿主的表单与代码面（`textarea`、`input`、`select`、`pre`），测试会逐条核对。
+- 文本框的焦点指示不用宿主的外扩轮廓（在软表面上像一圈多余的蓝边），改成画在框内侧的 1.5px 钢蓝内缘——键盘用户仍然看得到光标落在哪个框。
 
 ## 目录结构
 
@@ -60,7 +61,7 @@
 
 - Client 半通过 `window.__ModuleLoader__.load({ id, factory })` 注册，`factory` 返回 `{ inject: ['theme'], apply(ctx) }`。
 - 所有副作用都包在 `ctx.effect()` 里并返回清理函数，插件停用时撤销 token 覆盖层并移除样式表，界面立刻回到原生外观。
-- 若宿主某天拒绝含 `--dsw-radius-*` 的 token 表，会自动退回只含颜色的 58 项重试。
+- 若宿主某天拒绝含 `--dsw-radius-*` 的 token 表，会自动退回只含颜色的 66 项重试。
 - 样式规则用整类名锚定宿主 CSS Module，哈希前缀随版本变化也不会失效。
 
 ## 开发

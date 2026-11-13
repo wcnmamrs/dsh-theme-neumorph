@@ -170,7 +170,7 @@ body[data-ds-dark-theme] {
    Nothing here targets a bare tag: a span is not text until it says so. */
 /* Same rule, for the pieces of text that are wrapped in a div rather than a
    span: a label, a title, a value. They are content too. */
-body :is([class*="_label"], [class*="_title"], [class*="_value"], [class*="_text"], [class*="_name"], [class*="_desc"], [class*="_caption"], [class*="_hint"], [class*="_meta"], [class*="_timestamp"]) {
+body :is([class*="_label"], [class*="_title"], [class*="_value"], [class*="_text"], [class*="_name"], [class*="_desc"], [class*="_caption"], [class*="_hint"], [class*="_meta"], [class*="_timestamp"]):not([class*="__"]) {
   background-color: transparent !important;
   box-shadow: none !important;
 }
@@ -181,33 +181,33 @@ body :is([class*="_label"], [class*="_title"], [class*="_value"], [class*="_text
    lives inside a menu, a tab strip or a picker are excluded, because a
    shadow under a row that spans the panel reads as a stray line, and a
    stack of them reads as alternating high and low. */
-body :where(button, [role="button"])[class*="_"]:not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not([class*="_primary"]):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *) {
+body :where(button, [role="button"])[class*="_"]:not([class*="__"]):not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not([class*="_primary"]):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *) {
   border-radius: 12px !important;
   border-color: transparent !important;
   background-color: var(--dsw-alias-bg-base) !important;
   box-shadow: var(--qn-out-sm) !important;
 }
 
-body :where(button, [role="button"])[class*="_"]:not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not([class*="_primary"]):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *):hover:not(:disabled) {
+body :where(button, [role="button"])[class*="_"]:not([class*="__"]):not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not([class*="_primary"]):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *):hover:not(:disabled) {
   box-shadow: var(--qn-out) !important;
 }
 
-body :where(button, [role="button"])[class*="_"]:not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not([class*="_primary"]):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *):active:not(:disabled) {
+body :where(button, [role="button"])[class*="_"]:not([class*="__"]):not([aria-checked]):not([role="checkbox"]):not([role="radio"]):not([class*="_primary"]):not([role="menuitem"]):not([role="option"]):not([role="tab"]):not([class*="_callRow"]):not([class*="_panelRow"]):not([class*="_cardContent"]):not([class*="_row"]):not([class*="_tab"]):not([class*="_option"]):not([class*="_cell"]):not([class*="_switcher"]):not([class*="_segmented"]):not(:is([role="menu"], [role="tablist"], [role="listbox"], [data-menu-material], [class*="_tabs"], [class*="_groups"], [class*="_menu"]) *):active:not(:disabled) {
   box-shadow: var(--qn-in-sm) !important;
 }
 
 /* The send button is a filled pill and keeps one soft shadow of its own. */
-body :where(button, [role="button"])[class*="_primary"] {
+body :where(button, [role="button"])[class*="_primary"]:not([class*="__"]) {
   border-radius: 999px !important;
   border-color: transparent !important;
   box-shadow: 0 3px 8px rgba(74, 107, 138, 0.28) !important;
 }
 
-body :where(button, [role="button"])[class*="_primary"]:hover:not(:disabled) {
+body :where(button, [role="button"])[class*="_primary"]:not([class*="__"]):hover:not(:disabled) {
   box-shadow: 0 4px 10px rgba(74, 107, 138, 0.34) !important;
 }
 
-body :where(button, [role="button"])[class*="_primary"]:active:not(:disabled) {
+body :where(button, [role="button"])[class*="_primary"]:not([class*="__"]):active:not(:disabled) {
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.26) !important;
 }
 
@@ -226,16 +226,17 @@ body :where(
    Deliberately narrow. Rows, tabs, chips, list items and every other small
    block stay flat: a shadow on each of them turns the page into a field of
    pillows, which is not what neumorphism is for. */
-body [class$="_card"], [class*="_card "], [class$="Card"], [class*="Card "] {
+body [class$="_card"],
+body [class*="_card "]:not([class*="__"]) {
   box-shadow: var(--qn-drop) !important;
   border-color: transparent !important;
 }
 
 /* ---- composer: the one big soft slab ------------------------------------ */
-body [class*="_composerSeat"] [class$="_card"],
-body [class*="_composerSeat"] [class*="_card "],
-body [class*="_composerHero"] [class$="_card"],
-body [class*="_composerHero"] [class*="_card "] {
+body [class*="_composerSeat"]:not([class*="__"]) [class$="_card"],
+body [class*="_composerSeat"]:not([class*="__"]) [class*="_card "]:not([class*="__"]),
+body [class*="_composerHero"]:not([class*="__"]) [class$="_card"],
+body [class*="_composerHero"]:not([class*="__"]) [class*="_card "]:not([class*="__"]) {
   box-shadow: var(--qn-out) !important;
   border-radius: 22px !important;
   border-color: transparent !important;
@@ -244,7 +245,7 @@ body [class*="_composerHero"] [class*="_card "] {
 /* ---- floating surfaces: menus, dialogs, tooltips ------------------------ */
 body :where([role="menu"], [role="dialog"], [role="listbox"], [role="tooltip"]),
 body [data-menu-material],
-body :is([class$="_menu"], [class*="_menu "], [class$="_dialog"], [class*="_dialog "]) {
+body :is([class$="_menu"], [class*="_menu "], [class$="_dialog"], [class*="_dialog "]):not([class*="__"]) {
   border-radius: 20px !important;
   box-shadow: var(--qn-out-lg) !important;
 }
@@ -255,19 +256,15 @@ body [data-menu-material] > [aria-hidden="true"] {
   border-radius: inherit !important;
 }
 
-body [data-menu-material] {
-  overflow: hidden !important;
-}
-
 /* ---- session tree: one soft row per session ----------------------------- */
-body [class*="_sessionRow"],
-body [class*="_projectRow"] {
+body [class*="_sessionRow"]:not([class*="__"]),
+body [class*="_projectRow"]:not([class*="__"]) {
   border-radius: 12px !important;
   box-shadow: var(--qn-drop) !important;
 }
 
-body [class*="_sessionRow"]:hover,
-body [class*="_projectRow"]:hover {
+body [class*="_sessionRow"]:not([class*="__"]):hover,
+body [class*="_projectRow"]:not([class*="__"]):hover {
   box-shadow: var(--qn-drop-lift) !important;
 }
 
@@ -279,14 +276,24 @@ body :where(pre) {
 }
 
 /* ---- sidebar: a faint groove instead of a divider line ------------------ */
-body [class*="_sidebarCol"] {
+body [class*="_sidebarCol"]:not([class*="__"]) {
   box-shadow: inset -8px 0 14px -14px var(--qn-lo) !important;
 }
 
-/* ---- focus: visible on controls, never a ring on the text fields -------- */
-body :where(textarea, input, select, [contenteditable="true"]):focus,
+/* ---- focus: a pressed rim, drawn inside the field ----------------------
+   The host ring is an outer halo, which on a soft surface reads as a stray
+   blue edge beside the box (and it cannot be seen at all once the field has
+   the recessed shadow). So the outer ring is dropped and replaced by a rim
+   inside the field, in the same accent a selected control uses. It exists
+   only while the field has focus: without it a keyboard user has no way to
+   tell which box the caret is in. */
+body :where(textarea, input, select, [contenteditable="true"]):focus {
+  outline: none !important;
+}
+
 body :where(textarea, input, select, [contenteditable="true"]):focus-visible {
   outline: none !important;
+  box-shadow: var(--qn-in), inset 0 0 0 1.5px var(--dsw-alias-brand-primary) !important;
 }
 
 body :where(button, [role="button"], a):focus-visible {
@@ -299,14 +306,7 @@ body :where(button, [role="button"], a):focus-visible {
     return {
       inject: ['theme'],
       apply(ctx) {
-        // Shadow layer: neumorphism needs paired soft shadows, and a theme token
-        // can only carry a colour, so the shadows are a stylesheet of their own.
-        const style = document.createElement('style');
-        style.dataset.dshTheme = SOURCE;
-        style.textContent = CSS;
-        document.head.appendChild(style);
-
-        // Colour layer: `overrideTokens` returns the disposer for exactly this
+        // Colour table: `overrideTokens` returns the disposer for exactly this
         // layer. The radius tokens are the only non-colour entries, so they are
         // what gets dropped first if a host build ever rejects the table.
         const overrideTokens = () => {
@@ -321,10 +321,30 @@ body :where(button, [role="button"], a):focus-visible {
           }
         };
 
+        // Everything the plugin adds is created and released inside one effect:
+        // a stylesheet inserted before the effect registered would outlive a
+        // throw here, and a second apply would stack a second copy of it.
         ctx.effect(() => {
-          const disposeTokens = overrideTokens();
+          // Shadow layer: neumorphism needs paired soft shadows, and a theme
+          // token can only carry a colour, so the shadows are a stylesheet of
+          // their own.
+          const style = document.createElement('style');
+          style.dataset.dshTheme = SOURCE;
+          style.textContent = CSS;
+          const root = document.head ?? document.documentElement;
+          root.appendChild(style);
+
+          let disposeTokens = null;
+          try {
+            disposeTokens = overrideTokens();
+          } catch (error) {
+            // A host that rejects the table outright still gets the shadows, and
+            // the sheet is still owned by this effect: report, do not throw.
+            console.warn('[dsh-theme-neumorph] token layer rejected, shadows only', error);
+          }
+
           return () => {
-            disposeTokens();
+            disposeTokens?.();
             style.remove();
           };
         });
