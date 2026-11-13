@@ -151,7 +151,9 @@ test('keeps the steel-blue accent and leaves checkable controls alone', async ()
     (await loadTheme()).tokens
   );
   assert.equal(table['--dsw-alias-brand-primary'].light, '#4a6b8a');
-  // The switch thumb is host-owned; overriding it would hide the knob.
+  // The thumb token is themed, but the knob that sits on the track is drawn by
+  // the host from `--dsw-alias-label-primary-foreground`, which this theme never
+  // touches - so the knob stays visible on both track colours.
   assert.equal(table['--dsw-alias-switch-thumb'].light, '#f2f5f9');
   // Deliberate non-decision: the host's business-primary stays the host's blue.
   // It also paints focus rings and info banners, where the host's own contrast
